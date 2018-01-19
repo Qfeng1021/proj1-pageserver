@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 import socket    # Basic TCP/IP communication on the internet
 import _thread   # Response computation runs concurrently with main program
-
+import os
 
 def listen(portnum):
     """
@@ -88,14 +88,20 @@ def respond(sock):
     request = str(request, encoding='utf-8', errors='strict')
     log.info("--- Received request ----")
     log.info("Request was {}\n***\n".format(request))
-
+    cur_path = os
     parts = request.split()
-    if len(parts) > 1 and parts[0] == "GET":
-        transmit(STATUS_OK, sock)
-        transmit(CAT, sock)
+    if len(parts) > 1 and (".." in parts[1] or "~" in parts[1] or "//"  in parts[1]):
+                log.info("Unhandled request: {}".format(request))
+                transmit(STATUS_FORBIDDEN, sock)
+                transmit("\nI don't handle this request: {}\n".format(request), sock)
+    elif len(parts) > 1 and (parts[1][-5:] == ".html" or parts[1][-4:] == ".css"):
+                if parts[1][:1] not in get_options().DOCROOT:
+                           transmit(STATUS_NOT_FOUND, sock)
+                else:
+                           transmit(STATUS_OK, sock)
     else:
         log.info("Unhandled request: {}".format(request))
-        transmit(STATUS_NOT_IMPLEMENTED, sock)
+        transmit(STATUS_FORBIDDEN, sock)
         transmit("\nI don't handle this request: {}\n".format(request), sock)
 
     sock.shutdown(socket.SHUT_RDWR)
