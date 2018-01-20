@@ -101,10 +101,10 @@ def respond(sock):
                 if parts[1][1:] == m:
                     transmit(STATUS_OK, sock)
                     cur_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                    f = open(cur_path + "/pages" + parts[1], 'rb')
+                    f = open(cur_path + "/pages" + parts[1], 'r')
                     w = f.read()
                     f.close()
-                    transmit(w.decode(), sock)
+                    transmit(w, sock)
                     sock.shutdown(socket.SHUT_RDWR)
                     sock.close()
                     return
